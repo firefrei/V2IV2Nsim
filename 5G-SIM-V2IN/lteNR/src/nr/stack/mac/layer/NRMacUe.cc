@@ -787,14 +787,15 @@ void NRMacUe::macPduMake(MacCid cid) {
 		}
 
 		// consider virtual buffers to compute BSR size
-		if (macBuffers_.find(destCid) == macBuffers_.end()) {
+		auto bufIter = macBuffers_.find(destCid);
+		if (bufIter == macBuffers_.end()) {
 			for (auto &var : macBuffers_) {
 				if (var.first == destCid) {
 					size = size + var.second->getQueueOccupancy(); //for the bsr
 				}
 			}
 		} else {
-			size = size + macBuffers_[destCid]->getQueueOccupancy(); //for the bsr
+			size = size + bufIter->second->getQueueOccupancy(); //for the bsr
 		}
 	}
 
@@ -953,11 +954,11 @@ bool NRMacUe::bufferizePacket(cPacket *pkt) {
 
 			//EV << "NRMacUe : Using new buffer on node: " << MacCidToNodeId(cid) << " for Lcid: " << MacCidToLcid(cid) << ", Bytes in the Queue: " << vqueue->getQueueOccupancy() << "\n";
 		} else {
-			LteMacBuffer *vqueue = macBuffers_.find(cid)->second;
+			LteMacBuffer *vqueue = it->second;
 			if (vqueue == NULL || vqueue == nullptr) {
 				LteMacBuffer *vqueue = new LteMacBuffer();
 				vqueue->pushBack(vpkt);
-				macBuffers_[cid] = vqueue;
+				it->second = vqueue;
 
 				// make a copy of lte control info and store it to traffic descriptors map
 				FlowControlInfo toStore(*lteInfo);
@@ -965,7 +966,7 @@ bool NRMacUe::bufferizePacket(cPacket *pkt) {
 				// register connection to lcg map.
 				LteTrafficClass tClass = (LteTrafficClass) lteInfo->getTraffic();
 
-				lcgMap_.insert(LcgPair(tClass, CidBufferPair(cid, macBuffers_[cid])));
+				lcgMap_.insert(LcgPair(tClass, CidBufferPair(cid, it->second)));
 			} else {
 				vqueue->pushBack(vpkt);
 			}
@@ -1090,15 +1091,14 @@ void NRMacUe::checkRACQoSModel() {
 	simtime_t remainDelayBudget;
 
 	//
-	std::map<double, std::vector<QosInfo>> qosinfosMap;
-	//
-	qosinfosMap = getQosHandler()->getEqualPriorityMap(UL);
+	std::map<double, std::vector<QosInfo>> qosinfosMap = getQosHandler()->getEqualPriorityMap(UL);
 	for (auto &var : qosinfosMap) {
 		for (auto &qosinfo : var.second) {
-			if (!macBuffers_[qosinfo.cid]->isEmpty()) {
+			auto &buf = macBuffers_.at(qosinfo.cid);
+			if (!buf->isEmpty()) {
 
 				cid = qosinfo.cid;
-				simtime_t creationTimeFirstPacket = macBuffers_[cid]->getHolTimestamp();
+				simtime_t creationTimeFirstPacket = buf->getHolTimestamp();
 				ASSERT(creationTimeFirstPacket != 0);
 
 				ScheduleInfo tmp;
@@ -1108,8 +1108,8 @@ void NRMacUe::checkRACQoSModel() {
 				tmp.priority = getQosHandler()->getPriority(getQosHandler()->get5Qi(getQosHandler()->getQfi(cid)));
 				tmp.numberRtx = 0;
 				tmp.nodeId = MacCidToNodeId(tmp.cid);
-				tmp.bytesizeUL = macBuffers_[cid]->getQueueOccupancy();
-				tmp.sizeOnePacketUL = macBuffers_[cid]->front().first;
+				tmp.bytesizeUL = buf->getQueueOccupancy();
+				tmp.sizeOnePacketUL = buf->front().first;
 
 				simtime_t delay = NOW - creationTimeFirstPacket;
 				remainDelayBudget = tmp.pdb - delay;
@@ -1134,7 +1134,7 @@ void NRMacUe::checkRACQoSModel() {
 		for (auto &vec : var.second) {
 			cid = vec.cid;
 			bytesize = vec.bytesizeUL;
-			creationTimeOfQueueFront = macBuffers_[cid]->getHolTimestamp();
+			creationTimeOfQueueFront = macBuffers_.at(cid)->getHolTimestamp();
 			sizeOfOnePacketInBytes = vec.sizeOnePacketUL;
 
 			trigger = true;
@@ -1256,9 +1256,10 @@ void NRMacUe::checkRAC() {
 	//default approach --> sorted by Lcids
 	std::vector<std::pair<MacCid, QosInfo>> qosinfos = getQosHandler()->getSortedQosInfos(UL);
 	for (auto &var : qosinfos) {
-		if (!macBuffers_[var.first]->isEmpty()) {
+	    const auto &buf = macBuffers_.at(var.first);
+		if (!buf->isEmpty()) {
 			cid = var.first;
-			bytesize += macBuffers_[var.first]->getQueueOccupancy(); //--> whole size of Queue would used for RAC request
+			bytesize += buf->getQueueOccupancy(); //--> whole size of Queue would used for RAC request
 
 			trigger = true;
 

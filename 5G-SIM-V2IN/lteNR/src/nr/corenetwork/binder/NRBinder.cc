@@ -57,7 +57,7 @@ MacNodeId NRBinder::getConnectedGnb(MacNodeId ueid) {
 
 	}
 
-	for (auto var : availableGnbs) {
+	for (auto &var : availableGnbs) {
 		if (getDeployedUes(var)[ueid]) {
 			return var;
 		}

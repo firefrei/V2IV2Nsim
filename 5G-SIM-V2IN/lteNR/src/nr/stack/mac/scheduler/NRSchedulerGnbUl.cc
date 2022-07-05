@@ -182,7 +182,7 @@ bool NRSchedulerGnbUl::racschedule() {
 	}
 
 	// clean up all requests
-	for (auto var : racStatusInfo_) {
+	for (auto &var : racStatusInfo_) {
 		delete var.second;
 	}
 	racStatus_.clear();

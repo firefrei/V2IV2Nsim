@@ -88,7 +88,7 @@ public:
     virtual void deleteNode(unsigned int nodeId) {
     	Enter_Method_Silent("deleteNode");
         std::vector<unsigned int> tmp;
-        for (auto const & var : QosInfos) {
+        for (auto const &var : QosInfos) {
             if (var.second.destNodeId == nodeId
                     || var.second.senderNodeId == nodeId) {
                 tmp.push_back(var.first);
@@ -120,7 +120,7 @@ public:
 	virtual std::vector<std::pair<MacCid, QosInfo>> getSortedQosInfos(Direction dir) {
 		Enter_Method_Silent("getSortedQosInfos");
 		std::vector<std::pair<unsigned int, QosInfo>> tmp;
-		for (auto var : QosInfos) {
+		for (auto &var : QosInfos) {
 			if (var.second.lcid != 0 && var.second.lcid != 10 && var.second.dir == dir)
 				tmp.push_back(var);
 		}

@@ -92,7 +92,7 @@ NRSdapEntity* NRsdap::getEntity(MacNodeId sender, MacNodeId dest, ApplicationTyp
 }
 
 void NRsdap::finish() {
-	for (auto var : entities) {
+	for (auto &var : entities) {
 		delete var.second;
 	}
 	entities.clear();
