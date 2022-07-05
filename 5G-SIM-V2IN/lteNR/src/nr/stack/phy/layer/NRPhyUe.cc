@@ -81,9 +81,6 @@ void NRPhyUe::initialize(int stage) {
 		emit(averageTxPower, txPower_);
 		errorCount = 0;
 
-		if (!hasListeners(averageCqiDl_))
-			error("no phy listeners");
-
 		lostPacketsDownlink.setName("lostPacketsDownlink");
 		lostPacketsUplink.setName("lostPacketsUplink");
 		downlinkXPosition.setName("downlinkXPosition");
