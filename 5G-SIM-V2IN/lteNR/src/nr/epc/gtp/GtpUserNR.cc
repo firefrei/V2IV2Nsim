@@ -43,6 +43,8 @@ void GtpUserNR::initialize(int stage) {
     if (upfModule) {
         upfAddress_ = L3AddressResolver().resolve(upfModule->getFullPath().c_str());
     }
+
+	considerProcessingDelay = getSystemModule()->par("considerProcessingDelay").boolValue();
 }
 
 EpcNodeType GtpUserNR::selectOwnerType(const char * type) {
@@ -154,7 +156,7 @@ void GtpUserNR::handleFromUdp(GtpUserMsg * gtpMsg) {
 			// destination is outside the network
 			//EV << "GtpUserSimplified::handleFromUdp - Deliver datagram to the internet " << endl;
 
-			if (getSystemModule()->par("considerProcessingDelay").boolValue()) {
+			if (considerProcessingDelay) {
 				//add processing delay
 				sendDelayed(datagram, uniform(0,datagram->getTotalLengthField()/10e5), "pppGate");
 			} else {

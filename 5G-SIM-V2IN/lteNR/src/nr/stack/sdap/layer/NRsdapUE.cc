@@ -49,13 +49,14 @@ void NRsdapUE::initialize(int stage) {
         hoErrorCount = 0;
         WATCH(nodeId_);
 
+        considerProcessingDelay = getSystemModule()->par("considerProcessingDelay").boolValue();
+
         throughputTimer = new cMessage("throughputTimer");
         throughputDL = 0;
         throughputUL = 0;
         throughputDLvec.setName("throughputDLvecSDAP");
         throughputULvec.setName("throughputULvecSDAP");
         scheduleAt(NOW + 1, throughputTimer);
-
     }
 }
 
@@ -128,7 +129,7 @@ void NRsdapUE::fromUpperToLower(cMessage *msg) {
 
     sdapPkt->setControlInfo(lteInfo);
 
-	if (getSystemModule()->par("considerProcessingDelay").boolValue()) {
+	if (considerProcessingDelay) {
 		//add processing delay
 		sendDelayed(sdapPkt, uniform(0, pkt->getByteLength() / 10e5), lowerLayer);
 	} else {
@@ -157,7 +158,7 @@ void NRsdapUE::fromLowerToUpper(cMessage *msg) {
     recordThroughputDL(upPkt->getByteLength());
 	//
 
-	if (getSystemModule()->par("considerProcessingDelay").boolValue()) {
+	if (considerProcessingDelay) {
 		//add processing delay
 		sendDelayed(upPkt, uniform(0, upPkt->getByteLength() / 10e5), upperLayer);
 	} else {

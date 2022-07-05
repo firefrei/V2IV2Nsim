@@ -39,6 +39,8 @@ public:
 
 protected:
     QosHandler * qosHandler;
+    bool considerProcessingDelay = false;
+
     void initialize(int stage);
     virtual void handleMessage(cMessage *msg);
     virtual void fromDataPort(cPacket *pkt);

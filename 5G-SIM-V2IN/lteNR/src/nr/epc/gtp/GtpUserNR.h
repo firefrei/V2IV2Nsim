@@ -42,6 +42,8 @@ class GtpUserNR : public cSimpleModule
 
     EpcNodeType selectOwnerType(const char * type);
 
+    bool considerProcessingDelay = false;
+
   protected:
 
     virtual int numInitStages() const { return inet::NUM_INIT_STAGES; }

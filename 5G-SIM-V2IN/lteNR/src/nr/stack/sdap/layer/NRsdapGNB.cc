@@ -51,6 +51,7 @@ void NRsdapGNB::initialize(int stage) {
         hoErrorCount = 0;
         WATCH(nodeId_);
 
+        considerProcessingDelay = getSystemModule()->par("considerProcessingDelay").boolValue();
     }
 
 }
@@ -101,7 +102,7 @@ void NRsdapGNB::fromUpperToLower(cMessage *msg) {
     sdapPkt->encapsulate(pkt);
     sdapPkt->setControlInfo(lteInfo);
 
-    if (getSystemModule()->par("considerProcessingDelay").boolValue()) {
+    if (considerProcessingDelay) {
 		//add processing delay
 		sendDelayed(sdapPkt, uniform(0, pkt->getByteLength() / 10e5), lowerLayer);
 	} else {
@@ -132,7 +133,7 @@ void NRsdapGNB::fromLowerToUpper(cMessage *msg) {
     sdapUE->recordThroughputUL(upPkt->getByteLength());
     //
 
-	if (getSystemModule()->par("considerProcessingDelay").boolValue()) {
+	if (considerProcessingDelay) {
 		//add processing delay
 		sendDelayed(upPkt, uniform(0, upPkt->getByteLength() / 10e5), upperLayer);
 	} else {

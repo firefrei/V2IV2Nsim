@@ -67,7 +67,7 @@ protected:
     MacNodeId nodeId_;
     NRSdapEntities entities;
     unsigned int hoErrorCount;
-
+	bool considerProcessingDelay = false;
 
 
 protected:

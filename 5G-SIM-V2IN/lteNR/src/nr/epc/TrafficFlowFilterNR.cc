@@ -72,6 +72,8 @@ void TrafficFlowFilterNR::initialize(int stage) {
 			    EV << "TrafficFlowFilterNR::initialize - Not connected to a UPF." << endl;
 			}
 		}
+
+		considerProcessingDelay = getSystemModule()->par("considerProcessingDelay").boolValue();
 	}
 	//
 }
@@ -131,7 +133,7 @@ void TrafficFlowFilterNR::handleMessage(cMessage *msg) {
 			}
 		}
 
-		if (getSystemModule()->par("considerProcessingDelay").boolValue()) {
+		if (considerProcessingDelay) {
 			//add processing delay
 		    sendDelayed(datagram, uniform(0,datagram->getTotalLengthField()/10e5), outGate);
 		}
@@ -176,7 +178,7 @@ void TrafficFlowFilterNR::handleMessage(cMessage *msg) {
 
 		//EV << "TrafficFlowFilterNR::handleMessage - setting tft=" << tftId << endl;
 
-		if (getSystemModule()->par("considerProcessingDelay").boolValue()) {
+		if (considerProcessingDelay) {
 			//add processing delay
 			sendDelayed(datagram, uniform(0,datagram->getTotalLengthField()/10e5),"gtpUserGateOut");
 		} else {

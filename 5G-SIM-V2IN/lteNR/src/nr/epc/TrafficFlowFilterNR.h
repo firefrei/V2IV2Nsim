@@ -57,6 +57,8 @@ class TrafficFlowFilterNR : public cSimpleModule
 
     TrafficFilterTemplateTable filterTable_;
 
+    bool considerProcessingDelay = false;
+
     EpcNodeType selectOwnerType(const char * type);
     virtual int numInitStages() const { return INITSTAGE_LAST+1; }
     virtual void initialize(int stage);

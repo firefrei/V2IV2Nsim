@@ -33,6 +33,8 @@ void NRPdcpRrcUe::initialize(int stage){
     if (stage == inet::INITSTAGE_LOCAL) {
         qosHandler = check_and_cast<QosHandlerUE*>(
                 getParentModule()->getSubmodule("qosHandler"));
+
+        considerProcessingDelay = getSystemModule()->par("considerProcessingDelay").boolValue();
     }
     nodeId_ = getAncestorPar("macNodeId");
     lcid_ = 10000;
@@ -70,7 +72,7 @@ void NRPdcpRrcUe::toDataPort(cPacket *pkt) {
 
     upPkt->setControlInfo(lteInfo);
 
-	if (getSystemModule()->par("considerProcessingDelay").boolValue()) {
+	if (considerProcessingDelay) {
 		sendDelayed(upPkt, uniform(0, upPkt->getByteLength() / 10e5), dataPort_[OUT]);
 	} else {
 		// Send message
@@ -168,7 +170,7 @@ void NRPdcpRrcUe::fromDataPort(cPacket *pkt) {
 
     //EV << "NRPdcpRrcUe : Sending packet " << pdcpPkt->getName() << " on port " << (lteInfo->getRlcType() == UM ? "UM_Sap$o\n" : "AM_Sap$o\n");
 
-	if (getSystemModule()->par("considerProcessingDelay").boolValue()) {
+	if (considerProcessingDelay) {
 		sendDelayed(pdcpPkt, uniform(0, pdcpPkt->getByteLength() / 10e5), (lteInfo->getRlcType() == UM ? umSap_[OUT] : amSap_[OUT]));
 	} else {
 		// Send message

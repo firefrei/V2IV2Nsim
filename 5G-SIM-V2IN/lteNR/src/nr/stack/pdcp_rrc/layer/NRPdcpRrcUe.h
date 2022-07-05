@@ -34,6 +34,8 @@
 class NRPdcpRrcUe: public LtePdcpRrcUe {
 protected:
     QosHandler * qosHandler;
+    bool considerProcessingDelay = false;
+
     virtual void initialize(int stage);
     virtual void handleMessage(cMessage *msg);
     virtual void fromDataPort(cPacket *pkt);
