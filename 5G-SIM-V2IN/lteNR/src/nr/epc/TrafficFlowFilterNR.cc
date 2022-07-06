@@ -73,7 +73,7 @@ void TrafficFlowFilterNR::initialize(int stage) {
 			}
 		}
 
-		considerProcessingDelay = getSystemModule()->par("considerProcessingDelay").boolValue();
+		considerProcessingDelay = par("considerProcessingDelay").boolValue();
 	}
 	//
 }

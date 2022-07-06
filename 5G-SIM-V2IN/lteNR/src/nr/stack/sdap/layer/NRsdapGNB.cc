@@ -51,7 +51,7 @@ void NRsdapGNB::initialize(int stage) {
         hoErrorCount = 0;
         WATCH(nodeId_);
 
-        considerProcessingDelay = getSystemModule()->par("considerProcessingDelay").boolValue();
+        considerProcessingDelay = par("considerProcessingDelay").boolValue();
     }
 
 }

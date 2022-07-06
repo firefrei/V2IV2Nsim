@@ -39,6 +39,10 @@ simple NRPdcpRrcBase extends LtePdcpRrcBase like NRPdcpRrc{
     parameters:
         @display("i=block/fork");
 
+        // if true, a uniform random processing delay is considered in downlink and uplink
+        // the delay is calculated by this formula: uniform(0, totalPacketSizeInBytes / 10e5)
+        bool considerProcessingDelay = default(false);
+
         //#
         //# Statistic recording: end2end delay and throughput at the mac layer
         //#
@@ -62,7 +66,7 @@ simple NRPdcpRrcBase extends LtePdcpRrcBase like NRPdcpRrc{
 }
 
 simple NRPdcpRrcUe extends NRPdcpRrcBase {
-        @class("NRPdcpRrcUe");
+    @class("NRPdcpRrcUe");
 
 }
 

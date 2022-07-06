@@ -34,7 +34,7 @@ void NRPdcpRrcUe::initialize(int stage){
         qosHandler = check_and_cast<QosHandlerUE*>(
                 getParentModule()->getSubmodule("qosHandler"));
 
-        considerProcessingDelay = getSystemModule()->par("considerProcessingDelay").boolValue();
+        considerProcessingDelay = par("considerProcessingDelay").boolValue();
     }
     nodeId_ = getAncestorPar("macNodeId");
     lcid_ = 10000;

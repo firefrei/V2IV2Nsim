@@ -44,7 +44,7 @@ void GtpUserNR::initialize(int stage) {
         upfAddress_ = L3AddressResolver().resolve(upfModule->getFullPath().c_str());
     }
 
-	considerProcessingDelay = getSystemModule()->par("considerProcessingDelay").boolValue();
+	considerProcessingDelay = par("considerProcessingDelay").boolValue();
 }
 
 EpcNodeType GtpUserNR::selectOwnerType(const char * type) {

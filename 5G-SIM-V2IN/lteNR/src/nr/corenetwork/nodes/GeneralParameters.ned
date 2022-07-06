@@ -83,11 +83,6 @@ network GeneralParameters
         //should be set to "default" by default
         string qosModelPriority = default("default");
 
-        //if true, a uniform random processing delay is considered in downlink and uplink
-        //in the modules NRsdapUE, NRsdapGNB, NRPdcpRrcUe, NRPdcpRrcGnb, TrafficFlowFilterNR, GtpUserNR
-        //the delay is calculated by this formula: uniform(0, totalPacketSizeInBytes / 10e5)
-        bool considerProcessingDelay = default(false);
-
         //if true, blerCurves from simu5G are used by default
         bool blerCurvesNR = default(true);
         //TU --> range from SINR -14.5 - 38

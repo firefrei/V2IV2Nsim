@@ -1256,7 +1256,7 @@ void NRMacUe::checkRAC() {
 	//default approach --> sorted by Lcids
 	std::vector<std::pair<MacCid, QosInfo>> qosinfos = getQosHandler()->getSortedQosInfos(UL);
 	for (auto &var : qosinfos) {
-	    const auto &buf = macBuffers_.at(var.first);
+		const auto &buf = macBuffers_.at(var.first);
 		if (!buf->isEmpty()) {
 			cid = var.first;
 			bytesize += buf->getQueueOccupancy(); //--> whole size of Queue would used for RAC request

@@ -54,6 +54,11 @@ simple NRsdap like INRsdap
         int streamingRlc @enum(TM,UM,AM,UNKNOWN_RLC_TYPE) = default(1);
         int interactiveRlc @enum(TM,UM,AM,UNKNOWN_RLC_TYPE) = default(1);
         int backgroundRlc @enum(TM,UM,AM,UNKNOWN_RLC_TYPE) = default(1);
+
+        // if true, a uniform random processing delay is considered in downlink and uplink
+        // the delay is calculated by this formula: uniform(0, totalPacketSizeInBytes / 10e5)
+        bool considerProcessingDelay = default(false);
+
         @class("NRsdap");
         @display("i=block/filter");
 
