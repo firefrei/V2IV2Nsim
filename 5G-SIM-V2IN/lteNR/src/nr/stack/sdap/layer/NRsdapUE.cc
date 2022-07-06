@@ -107,7 +107,7 @@ void NRsdapUE::fromUpperToLower(cMessage *msg) {
 	}
 
     //nodeid is ue, destid is nodeB
-    NRSdapEntity* entity = getEntity(nodeId_, destId, (ApplicationType)(lteInfo->getApplication()));
+    //NRSdapEntity* entity = getEntity(nodeId_, destId, (ApplicationType)(lteInfo->getApplication()));
 
     //unsigned int sno = entity->nextSequenceNumber();
 

@@ -1154,7 +1154,7 @@ void TrafficGeneratorServerUL::processPacketServer(cPacket *pk) {
 		const char *name = temp->getSenderName();
 		carsData.insert(name);
 		temp->setArrivalTime(NOW);
-		int messageLen = temp->getByteLength();
+		// int messageLen = temp->getByteLength();
 
 		if (connectionsUEtoServ.find(nodeId) != connectionsUEtoServ.end()) {
 
@@ -2147,7 +2147,7 @@ void TrafficGeneratorCarDL::processPacket(cPacket *pk) {
 		int nodeId = temp->getSenderNodeId();
 		int number = temp->getSequenceNumber();
 		const char *name = temp->getSenderName();
-		unsigned int messageLen = temp->getByteLength();
+		// unsigned int messageLen = temp->getByteLength();
 		temp->setArrivalTime(NOW);
 
 		if (connectionsServToUE.find(nodeId) != connectionsServToUE.end()) {

@@ -1067,7 +1067,7 @@ double NRRealisticChannelModel::getAttenuationNR(const MacNodeId &nodeId, const 
  * represents Table A1-2 taken from ITU-R M.2412-0
  * Optional Formulas / Models not implemented!
  */
-double NRRealisticChannelModel::computeIndoorHotspot(const double &d3d, double &d2d, const MacNodeId &nodeId) {
+double NRRealisticChannelModel::computeIndoorHotspot(const double &d3d, const double &d2d, const MacNodeId &nodeId) {
 	//std::cout << "NRRealisticChannelModel::computeIndoorHotspot start at " << simTime().dbl() << std::endl;
 
 	if (channelModelType_ == InH_A) {
@@ -1202,7 +1202,7 @@ double NRRealisticChannelModel::calcDistanceBreakPointRMa(const double &d2d) {
 	return 2 * M_PI * hNodeB_ * hUe_ * (carrierFrequency_ * 1000000000 / SPEED_OF_LIGHT);
 }
 
-double NRRealisticChannelModel::computePLrmaLos(const double &d3d, double &d2d) {
+double NRRealisticChannelModel::computePLrmaLos(const double &d3d, const double &d2d) {
 	//std::cout << "NRRealisticChannelModel::computePLrmaLos start at " << simTime().dbl() << std::endl;
 
 	if (!(10 <= d2d && d2d <= 21000))
@@ -1229,7 +1229,7 @@ double NRRealisticChannelModel::computePLrmaLos(const double &d3d, double &d2d) 
 
 }
 
-double NRRealisticChannelModel::computePLrmaNlos(const double &d3d, double &d2d) {
+double NRRealisticChannelModel::computePLrmaNlos(const double &d3d, const double &d2d) {
 	//std::cout << "NRRealisticChannelModel::computePLrmaNlos start at " << simTime().dbl() << std::endl;
 
 	if (10 < d2d && d2d < 21000) {
@@ -1464,7 +1464,7 @@ double NRRealisticChannelModel::computeUMaB(double &d3d, double &d2d, const MacN
 /*
  * table A1-4, UMi_B, LOS
  */
-double NRRealisticChannelModel::computePLumiBLos(const double &d3d, double &d2d) {
+double NRRealisticChannelModel::computePLumiBLos(const double &d3d, const double &d2d) {
 	//std::cout << "NRRealisticChannelModel::computePLumiBLos start at " << simTime().dbl() << std::endl;
 
 	double dbp = calcDistanceBreakPoint(d2d);
@@ -1482,7 +1482,7 @@ double NRRealisticChannelModel::computePLumiBLos(const double &d3d, double &d2d)
 /*
  * table A1-4, UMi_A, LOS
  */
-double NRRealisticChannelModel::computePLumiALos(const double &d3d, double &d2d) {
+double NRRealisticChannelModel::computePLumiALos(const double &d3d, const double &d2d) {
 
 	//std::cout << "NRRealisticChannelModel::computePLumiALos start at " << simTime().dbl() << std::endl;
 
@@ -1507,7 +1507,7 @@ double NRRealisticChannelModel::computePLumiALos(const double &d3d, double &d2d)
 /*
  * table A1-3, UMa_A, LOS
  */
-double NRRealisticChannelModel::computePLumaLos(const double &d3d, double &d2d) {
+double NRRealisticChannelModel::computePLumaLos(const double &d3d, const double &d2d) {
 	//dbp --> see Note 3: d'BP --> Note 3: 4 * h'BS * h'UT * f
 
 	//std::cout << "NRRealisticChannelModel::computePLumaLos start at " << simTime().dbl() << std::endl;
@@ -1633,36 +1633,36 @@ double NRRealisticChannelModel::computeUrbanMacroUrllc(double &d3ddistance, doub
 /*
  * Taken from 38.901, IndoorFactory, Table 7.4.1-1
  */
-double NRRealisticChannelModel::computeIndoorFactory(double &d3ddistance, double &d2ddistance, const MacNodeId &nodeId) {
+double NRRealisticChannelModel::computeIndoorFactory(const double &d3ddistance, const double &d2ddistance, const MacNodeId &nodeId) {
 	//std::cout << "NRRealisticChannelModel::computeIndoorFactory start at " << simTime().dbl() << std::endl;
-	double pathloss = 0.0;
+	// double pathloss = 0.0;
 	if (losMap_[nodeId]) {
-		pathloss = computeInFLOS(d3ddistance, d2ddistance, nodeId);
+		// pathloss = computeInFLOS(d3ddistance, d2ddistance, nodeId);
 	} else if (channelModelType_ == InFSL) {
 		return computeInFSL(d3ddistance, d2ddistance, nodeId);
 	} else if (channelModelType_ == InFDL) {
-		double pathlossLOS = computeInFLOS(d3ddistance, d2ddistance, nodeId);
-		double pathlossNLOS = 18.6 + 35.7 * log10(d3ddistance) + 20 * log10(carrierFrequency_);
-		double pathlossInFSL = computeInFSL(d3ddistance, d2ddistance, nodeId);
-		pathloss = max(pathlossLOS, max(pathlossNLOS, pathlossInFSL));
+		// double pathlossLOS = computeInFLOS(d3ddistance, d2ddistance, nodeId);
+		// double pathlossNLOS = 18.6 + 35.7 * log10(d3ddistance) + 20 * log10(carrierFrequency_);
+		// double pathlossInFSL = computeInFSL(d3ddistance, d2ddistance, nodeId);
+		// pathloss = max(pathlossLOS, max(pathlossNLOS, pathlossInFSL));
 	} else if (channelModelType_ == InFSH) {
-		double pathlossLOS = computeInFLOS(d3ddistance, d2ddistance, nodeId);
-		double pathlossNLOS = 32.4 + 23.0 * log10(d3ddistance) + 20.0 * log10(carrierFrequency_);
-		pathloss = max(pathlossLOS, pathlossNLOS);
+		// double pathlossLOS = computeInFLOS(d3ddistance, d2ddistance, nodeId);
+		// double pathlossNLOS = 32.4 + 23.0 * log10(d3ddistance) + 20.0 * log10(carrierFrequency_);
+		// pathloss = max(pathlossLOS, pathlossNLOS);
 	} else if (channelModelType_ == InFDH) {
-		double pathlossLOS = computeInFLOS(d3ddistance, d2ddistance, nodeId);
-		double pathlossNLOS = 33.63 + 21.9 * log10(d3ddistance) + 20.0 * log10(carrierFrequency_);
-		pathloss = max(pathlossLOS, pathlossNLOS);
+		// double pathlossLOS = computeInFLOS(d3ddistance, d2ddistance, nodeId);
+		// double pathlossNLOS = 33.63 + 21.9 * log10(d3ddistance) + 20.0 * log10(carrierFrequency_);
+		// pathloss = max(pathlossLOS, pathlossNLOS);
 	}
 	throw cRuntimeError("Error LOS Indoor Factory path loss model is not valid --> invalid channelModel");
 }
 
-double NRRealisticChannelModel::computeInFLOS(double &d3ddistance, double &d2ddistance, const MacNodeId &nodeId) {
+double NRRealisticChannelModel::computeInFLOS(const double &d3ddistance, const double &d2ddistance, const MacNodeId &nodeId) {
 	//std::cout << "NRRealisticChannelModel::computeInFLOS start at " << simTime().dbl() << std::endl;
 	return (31.84 + 21.50 * log10(d3ddistance) + 19.00 * log10(carrierFrequency_));
 }
 
-double NRRealisticChannelModel::computeInFSL(double &d3ddistance, double &d2ddistance, const MacNodeId &nodeId) {
+double NRRealisticChannelModel::computeInFSL(const double &d3ddistance, const double &d2ddistance, const MacNodeId &nodeId) {
 	//std::cout << "NRRealisticChannelModel::computeInFSL start at " << simTime().dbl() << std::endl;
 	double pathlossLOS = 31.84 + 21.50 * log10(d3ddistance) + 19.00 * log10(carrierFrequency_);
 	double pathlossNLOS = 33.0 + 25.5 * log10(d3ddistance) + 20.0 * log10(carrierFrequency_);
@@ -1792,8 +1792,8 @@ bool NRRealisticChannelModel::isCorrupted(LteAirFrame *frame, UserControlInfo *l
 			sumSnr += snrV[jt->first];
 
 			int rbs = jt->second;
-			int bitLengthOfTB = frame->getBitLength();
-			int bitsPerRB = bitLengthOfTB / rbs;
+			// int bitLengthOfTB = frame->getBitLength();
+			// int bitsPerRB = bitLengthOfTB / rbs;
 			int snr = snrV[jt->first];
 
 			if (getSimulation()->getSystemModule()->par("blerCurvesNR").boolValue()) {
@@ -1869,7 +1869,7 @@ bool NRRealisticChannelModel::isCorrupted(LteAirFrame *frame, UserControlInfo *l
 	return tmp;
 }
 
-void NRRealisticChannelModel::considerCodeBlockGroups(LteControlInfo *&info, unsigned char &nTx, double &totalPer, LteAirFrame *&frame) {
+void NRRealisticChannelModel::considerCodeBlockGroups(LteControlInfo *&info, unsigned char &nTx, const double &totalPer, LteAirFrame *&frame) {
 
 	//std::cout << "NRRealisticChannelModel::considerCodeBlockGroups start at " << simTime().dbl() << std::endl;
 

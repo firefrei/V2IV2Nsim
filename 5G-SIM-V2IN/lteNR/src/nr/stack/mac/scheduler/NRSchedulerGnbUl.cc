@@ -382,8 +382,6 @@ void NRSchedulerGnbUl::qosModelSchedule() {
 //			}
 			//
 
-			MacCid realCid = idToMacCid(nodeId, qosinfoit->lcid);
-
 			unsigned int bytesize = racStatusInfo_[nodeId]->getBytesize();			// the bytesize of the whole queue or single packet
 
 			//this is the creationTime of the first packet in the buffer
@@ -561,7 +559,7 @@ void NRSchedulerGnbUl::qosModelSchedule() {
 				}
 
 				if (schedInfo.category == "rtx") {
-					unsigned int rtxBytes = schedulePerAcidRtxWithNRHarq(schedInfo.nodeId, schedInfo.codeword, schedInfo.process);
+					schedulePerAcidRtxWithNRHarq(schedInfo.nodeId, schedInfo.codeword, schedInfo.process);
 
 					ScheduledInfo tmp;
 					tmp.nodeId = schedInfo.nodeId;
@@ -598,9 +596,7 @@ void NRSchedulerGnbUl::qosModelSchedule() {
 				}
 
 				if (schedInfo.category == "newTx") {
-					MacCid cid = schedInfo.cid;
 					MacNodeId nodeId = schedInfo.nodeId;
-					unsigned int numBands = mac_->getCellInfo()->getNumBands();
 					const unsigned int cw = 0;
 					bool allocation = false;
 					//blocks = allocator_->computeTotalRbs();
@@ -608,7 +604,6 @@ void NRSchedulerGnbUl::qosModelSchedule() {
 					unsigned int bytes = 0;
 					unsigned int bytesize = schedInfo.bytesizeUL;    //bytes UE want to send
 					unsigned int sizePerPacket = schedInfo.sizeOnePacketUL; // bytes for one Packet
-					int schedBlocks = 0;
 					int schedBytesPerSchedInfo = 0;
 
 					for (Band b = 0; b < mac_->getCellInfo()->getNumBands(); ++b) {
@@ -631,7 +626,7 @@ void NRSchedulerGnbUl::qosModelSchedule() {
 							}
 
 							//required blocks fit the size of the shared blocks
-							if (reqBlocks <= blocksPerSchedInfo) {
+							if (reqBlocks <= (unsigned int)blocksPerSchedInfo) {
 								allocator_->addBlocks(MACRO, b, nodeId, reqBlocks, bytes);
 								allocation = true;
 								break;
@@ -686,13 +681,11 @@ void NRSchedulerGnbUl::qosModelSchedule() {
 
 				if (vec.category == "rtx") {
 
-					unsigned int rtxBytes = schedulePerAcidRtxWithNRHarq(vec.nodeId, vec.codeword, vec.process);
+					schedulePerAcidRtxWithNRHarq(vec.nodeId, vec.codeword, vec.process);
 
 				} else if (vec.category == "newTx") {
 
-					MacCid cid = vec.cid;
 					MacNodeId nodeId = vec.nodeId;
-					unsigned int numBands = mac_->getCellInfo()->getNumBands();
 					const unsigned int cw = 0;
 					bool allocation = false;
 					unsigned int blocks = 0;
@@ -740,7 +733,7 @@ void NRSchedulerGnbUl::qosModelSchedule() {
 
 					//EV << NOW << " NRSchedulerGnbUl::racschedule --------------------::[  END RAC-SCHEDULE  ]::--------------------" << endl;
 
-					int availableBlocks = allocator_->computeTotalRbs();
+					// int availableBlocks = allocator_->computeTotalRbs();
 
 				} else {
 					throw cRuntimeError("Error");
@@ -793,7 +786,6 @@ bool NRSchedulerGnbUl::rtxschedule() {
 			return true;
 	}
 
-	bool rtxNeeded = false;
 	try {
 		//EV << NOW << " NRSchedulerGnbUl::rtxschedule --------------------::[ START RTX-SCHEDULE ]::--------------------" << endl;
 		//EV << NOW << " NRSchedulerGnbUl::rtxschedule eNodeB: " << mac_->getMacCellId() << endl;
@@ -854,7 +846,6 @@ bool NRSchedulerGnbUl::rtxschedule() {
 				if (rtxBytes > 0) {
 					--codewords;
 					allocatedBytes += rtxBytes;
-					rtxNeeded = true;
 				}
 			}
 			//EV << NOW << "NRSchedulerGnbUl::rtxschedule user " << nodeId << " allocated bytes : " << allocatedBytes << endl;
@@ -869,7 +860,7 @@ bool NRSchedulerGnbUl::rtxschedule() {
 		//std::cout << "NRSchedulerGnbUl::rtxschedule end at " << simTime().dbl() << std::endl;
 
 		if (!getSimulation()->getSystemModule()->par("newTxbeforeRtx").boolValue()) {
-			bool retValue = racschedule();
+			racschedule();
 		}
 
 		return (availableBlocks == 0);
@@ -1077,7 +1068,7 @@ unsigned int NRSchedulerGnbUl::schedulePerAcidRtx(MacNodeId nodeId, Codeword cw,
 
 			unsigned int servedBytes = 0;
 			// there's no room on current band for serving the entire request
-			if (bandAvailableBytes < toServe) {
+			if (bandAvailableBytes < (unsigned int)toServe) {
 				// record the amount of served bytes
 				servedBytes = bandAvailableBytes;
 				// the request can be fully satisfied
@@ -1250,7 +1241,7 @@ unsigned int NRSchedulerGnbUl::schedulePerAcidRtxWithNRHarq(MacNodeId nodeId, Co
 
 			unsigned int servedBytes = 0;
 			// there's no room on current band for serving the entire request
-			if (bandAvailableBytes < toServe) {
+			if (bandAvailableBytes < (unsigned int)toServe) {
 				// record the amount of served bytes
 				servedBytes = bandAvailableBytes;
 				// the request can be fully satisfied
@@ -1350,7 +1341,7 @@ unsigned int NRSchedulerGnbUl::scheduleGrant(MacCid cid, unsigned int bytes, boo
 		return 0;
 	}
 
-	LogicalCid flowId = MacCidToLcid(cid);
+	// LogicalCid flowId = MacCidToLcid(cid);
 
 	Direction dir = direction_;
 
@@ -1451,7 +1442,7 @@ unsigned int NRSchedulerGnbUl::scheduleGrant(MacCid cid, unsigned int bytes, boo
 		//        else
 		//            EV << "NRSchedulerGnbUl::grant Bytes: " << bytes << endl;
 		//        EV << "NRSchedulerGnbUl::grant Bands: {";
-		unsigned int size = (*bandLim).size();
+		// unsigned int size = (*bandLim).size();
 		//        if (size > 0)
 		//        {
 		//            EV << (*bandLim).at(0).band_;

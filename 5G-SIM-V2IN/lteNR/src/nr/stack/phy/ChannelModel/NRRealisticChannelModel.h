@@ -106,7 +106,7 @@ protected:
 
 	virtual double getAttenuation_D2D(MacNodeId nodeId, Direction dir, inet::Coord coord, MacNodeId node2_Id, inet::Coord coord_2);
 
-	virtual double computeIndoorHotspot(const double &d3ddistance, double &d2ddistance, const MacNodeId &nodeId);
+	virtual double computeIndoorHotspot(const double &d3ddistance, const double &d2ddistance, const MacNodeId &nodeId);
 
 	virtual double computeDenseUrbanEmbb(double &d3ddistance, double &d2ddistance, const MacNodeId &nodeId);
 
@@ -116,11 +116,11 @@ protected:
 
 	virtual double computeUrbanMacroUrllc(double &d3ddistance, double &d2ddistance, const MacNodeId &nodeId);
 
-	virtual double computeIndoorFactory(double &d3ddistance, double &d2ddistance, const MacNodeId &nodeId);
+	virtual double computeIndoorFactory(const double &d3ddistance, const double &d2ddistance, const MacNodeId &nodeId);
 
-	virtual double computeInFSL(double &d3ddistance, double &d2ddistance, const MacNodeId &nodeId);
+	virtual double computeInFSL(const double &d3ddistance, const double &d2ddistance, const MacNodeId &nodeId);
 
-	virtual double computeInFLOS(double &d3ddistance, double &d2ddistance, const MacNodeId &nodeId);
+	virtual double computeInFLOS(const double &d3ddistance, const double &d2ddistance, const MacNodeId &nodeId);
 
 	void checkIndoorFactoryParameters();
 
@@ -150,15 +150,15 @@ protected:
 
 	double computeRMaB(double &d3ddistance, double &d2ddistance, const MacNodeId &nodeId);
 
-	double computePLumaLos(const double &d3ddistance, double &d2ddistance);
+	double computePLumaLos(const double &d3ddistance, const double &d2ddistance);
 
-	double computePLumiALos(const double &d3ddistance, double &d2ddistance);
+	double computePLumiALos(const double &d3ddistance, const double &d2ddistance);
 
-	double computePLumiBLos(const double &d3ddistance, double &d2ddistance);
+	double computePLumiBLos(const double &d3ddistance, const double &d2ddistance);
 
-	double computePLrmaLos(const double &d3ddistance, double &d2ddistance);
+	double computePLrmaLos(const double &d3ddistance, const double &d2ddistance);
 
-	double computePLrmaNlos(const double &d3ddistance, double &d2ddistance);
+	double computePLrmaNlos(const double &d3ddistance, const double &d2ddistance);
 
 	double calcDistanceBreakPointRMa(const double &d2ddistance);
 
@@ -167,7 +167,7 @@ protected:
 	bool computeMultiCellInterferenceNR(const MacNodeId &eNbId, const MacNodeId &ueId, const inet::Coord &uecoord, bool isCqi, std::vector<double> &interference, Direction dir,
 			const Coord &enodebcoord);
 
-	void considerCodeBlockGroups(LteControlInfo *& info, unsigned char & nTx, double & totalPer, LteAirFrame *& frame);
+	void considerCodeBlockGroups(LteControlInfo *& info, unsigned char & nTx, const double & totalPer, LteAirFrame *& frame);
 
 	 /* computes speed (m/s) for a given node
 	   * @param nodeid mac node id of UE

@@ -329,7 +329,7 @@ void NRSchedulerGnbDl::qosModelSchedule() {
 				}
 
 				if (schedInfo.category == "rtx") {
-					unsigned int rtxBytes = schedulePerAcidRtx(schedInfo.nodeId, schedInfo.codeword, schedInfo.process);
+					schedulePerAcidRtx(schedInfo.nodeId, schedInfo.codeword, schedInfo.process);
 
 					ScheduledInfo tmp;
 					tmp.nodeId = schedInfo.nodeId;
@@ -364,18 +364,13 @@ void NRSchedulerGnbDl::qosModelSchedule() {
 				}
 
 				if (schedInfo.category == "newTx") {
-
-					MacCid cid = schedInfo.cid;
 					MacNodeId nodeId = schedInfo.nodeId;
-					unsigned int numBands = mac_->getCellInfo()->getNumBands();
 					const unsigned int cw = 0;
-					bool allocation = false;
 					//blocks = allocator_->computeTotalRbs();
 					unsigned int bytesize = schedInfo.bytesizeDL;
 					unsigned int sizePerPacket = schedInfo.sizeOnePacketDL;
 					unsigned int reqBlocks = 0;
 					unsigned int bytes = 0;
-					int schedBlocks = 0;
 					int schedBytesPerSchedInfo = 0;
 
 					for (Band b = 0; b < mac_->getCellInfo()->getNumBands(); ++b) {
@@ -403,13 +398,13 @@ void NRSchedulerGnbDl::qosModelSchedule() {
 							bool eligible = true;
 
 							//required blocks fit the size of the shared blocks
-							if (reqBlocks <= blocksPerSchedInfo) {
+							if (reqBlocks <= (unsigned int)blocksPerSchedInfo) {
 
-								unsigned int granted = scheduleGrant(schedInfo.cid, bytes, terminate, active, eligible);
+								scheduleGrant(schedInfo.cid, bytes, terminate, active, eligible);
 
 							} else {
 								//required blocks larger, schedule only the shared blocks
-								unsigned int granted = scheduleGrant(schedInfo.cid, schedBytesPerSchedInfo, terminate, active, eligible);
+								scheduleGrant(schedInfo.cid, schedBytesPerSchedInfo, terminate, active, eligible);
 							}
 
 							// Exit immediately if the terminate flag is set.
@@ -449,7 +444,7 @@ void NRSchedulerGnbDl::qosModelSchedule() {
 
 				if (vec.category == "rtx") {
 
-					unsigned int bytes = schedulePerAcidRtx(vec.nodeId, vec.codeword, vec.process);
+					schedulePerAcidRtx(vec.nodeId, vec.codeword, vec.process);
 
 				} else if (vec.category == "newTx") {
 
@@ -490,11 +485,10 @@ void NRSchedulerGnbDl::qosModelSchedule() {
 					unsigned int bytesize = vec.bytesizeDL;
 					unsigned int sizePerPacket = vec.sizeOnePacketDL;
 
-					unsigned int granted = 0;
 					if (getSimulation()->getSystemModule()->par("useSinglePacketSizeDuringScheduling").boolValue()) {
-						granted = scheduleGrant(vec.cid, sizePerPacket, terminate, active, eligible); // for Packet
+						scheduleGrant(vec.cid, sizePerPacket, terminate, active, eligible); // for Packet
 					} else {
-						granted = scheduleGrant(vec.cid, bytesize, terminate, active, eligible); // for queue
+						scheduleGrant(vec.cid, bytesize, terminate, active, eligible); // for queue
 					}
 
 					// Exit immediately if the terminate flag is set.
@@ -717,7 +711,6 @@ unsigned int NRSchedulerGnbDl::schedulePerAcidRtx(MacNodeId nodeId, Codeword cw,
 
 	// check selected process status.
 	std::vector<UnitStatus> pStatus = currHarq->getProcess(acid)->getProcessStatus();
-	std::vector<UnitStatus>::iterator vit = pStatus.begin(), vet = pStatus.end();
 
 	Codeword allocatedCw = 0;
 	// search for already allocated codeword
@@ -849,7 +842,6 @@ unsigned int NRSchedulerGnbDl::scheduleGrant(MacCid cid, unsigned int bytes, boo
 		return 0;
 	}
 
-	LogicalCid flowId = MacCidToLcid(cid);
 	// Get user transmission parameters
 	const UserTxParams &txParams = mac_->getAmc()->computeTxParams(nodeId, direction_);
 	//get the number of codewords

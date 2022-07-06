@@ -213,7 +213,7 @@ void NRPhyUe::checkConnection() {
 		it = enbList->begin();
 		double maxRssi = -100;
 		int bestGNB = 0;
-		double bestGNBSINR = 0;
+		// double bestGNBSINR = 0;
 		for (; it != enbList->end(); ++it) {
 			MacNodeId cellId = (*it)->id;
 			LtePhyBase *cellPhy = check_and_cast<LtePhyBase*>((*it)->eNodeB->getSubmodule("lteNic")->getSubmodule("phy"));
@@ -250,7 +250,7 @@ void NRPhyUe::checkConnection() {
 
 			if(rssi > maxRssi){
 				bestGNB = cellId;
-				bestGNBSINR = rssi;
+				// bestGNBSINR = rssi;
 			}
 
 			maxRssi = max(rssi, maxRssi);

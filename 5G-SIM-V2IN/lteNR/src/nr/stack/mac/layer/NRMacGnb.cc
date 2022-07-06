@@ -512,19 +512,16 @@ void NRMacGnb::macSduRequest() {
 	if (scheduleListDl_->size() == 1) {
 		for (it = scheduleListDl_->begin(); it != scheduleListDl_->end(); it++) {
 			MacCid destCid = it->first.first;
-			Codeword cw = it->first.second;
 			MacNodeId destId = MacCidToNodeId(destCid);
 
 			// for each band, count the number of bytes allocated for this ue
 			unsigned int allocatedBytes = 0;
-			unsigned int allocatedBytesTmp = 0;
 			int numBands = cellInfo_->getNumBands();
 			for (Band b = 0; b < numBands; b++) {
 				// get the number of bytes allocated to this connection
 				// (this represents the MAC PDU size)
 				allocatedBytes += enbSchedulerDl_->allocator_->getBytes(MACRO, b, destId);
 			}
-			allocatedBytesTmp = allocatedBytes;
 			ASSERT(it->second.second == allocatedBytes);
 
 			if (allocatedBytes <= MAC_HEADER + RLC_HEADER_UM || it->second.second <= MAC_HEADER + RLC_HEADER_UM)
@@ -564,25 +561,21 @@ void NRMacGnb::macSduRequest() {
 
 					MacCid destCid = (*node.second.begin());
 					MacNodeId destId = node.first;
-					Codeword cw;
 					unsigned int test;
 					for (auto &var : *scheduleListDl_) {
 						if (var.first.first == destCid) {
-							cw = var.first.second;
 							test = var.second.second - MAC_HEADER;
 						}
 					}
 
 					//            // for each band, count the number of bytes allocated for this ue
 					unsigned int allocatedBytes = 0;
-					unsigned int allocatedBytesTmp = 0;
 					int numBands = cellInfo_->getNumBands();
 					for (Band b = 0; b < numBands; b++) {
 						// get the number of bytes allocated to this connection
 						// (this represents the MAC PDU size)
 						allocatedBytes += enbSchedulerDl_->allocator_->getBytes(MACRO, b, destId);
 					}
-					allocatedBytesTmp = allocatedBytes;
 					ASSERT(test == allocatedBytes - MAC_HEADER);
 					if (allocatedBytes - MAC_HEADER <= RLC_HEADER_UM || test <= RLC_HEADER_UM)
 						continue;
@@ -915,7 +908,7 @@ bool NRMacGnb::bufferizePacket(cPacket *pkt) {
 
 			//simplified Flow Control
 			if (getSimulation()->getSystemModule()->par("useSimplifiedFlowControl").boolValue()) {
-				if (macBuffers_[cid]->getQueueOccupancy() > (queueSize_ / 4)) {
+				if (macBuffers_[cid]->getQueueOccupancy() > (unsigned int)(queueSize_ / 4)) {
 					getNRBinder()->setQueueStatus(MacCidToNodeId(cid), lteInfo->getDirection(), lteInfo->getApplication(), true);
 				} else {
 					getNRBinder()->setQueueStatus(MacCidToNodeId(cid), lteInfo->getDirection(), lteInfo->getApplication(), false);
@@ -961,7 +954,7 @@ bool NRMacGnb::bufferizePacket(cPacket *pkt) {
 
 		//simplified Flow Control --> to ensure the packet flow continues
 		if (getSimulation()->getSystemModule()->par("useSimplifiedFlowControl").boolValue()) {
-			if (macBuffers_[cid]->getQueueOccupancy() > (queueSize_ / 4)) {
+			if (macBuffers_[cid]->getQueueOccupancy() > (unsigned int)(queueSize_ / 4)) {
 				getNRBinder()->setQueueStatus(MacCidToNodeId(cid), lteInfo->getDirection(), lteInfo->getApplication(), true);
 			} else {
 				getNRBinder()->setQueueStatus(MacCidToNodeId(cid), lteInfo->getDirection(), lteInfo->getApplication(), false);

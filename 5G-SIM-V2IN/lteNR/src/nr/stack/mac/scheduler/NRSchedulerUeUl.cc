@@ -67,8 +67,6 @@ LteMacScheduleListWithSizes* NRSchedulerUeUl::schedule() {
 
 	unsigned int codewords = grant->getCodewords();
 
-	unsigned int availableBlocks = grant->getTotalGrantedBlocks();
-
 	if (useQosModel) {
 		for (Codeword cw = 0; cw < codewords; ++cw) {
 			unsigned int availableBytes = grant->getGrantedCwBytes(cw);

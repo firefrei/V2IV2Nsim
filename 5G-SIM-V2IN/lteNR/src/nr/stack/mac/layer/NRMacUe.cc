@@ -803,7 +803,6 @@ void NRMacUe::macPduMake(MacCid cid) {
 
 	MacPduList::iterator pit;
 	for (pit = macPduList_.begin(); pit != macPduList_.end(); pit++) {
-		MacCid destCid = pit->first.first;
 		MacNodeId enbId = cellId_;
 		Codeword cw = pit->first.second;
 
@@ -973,7 +972,7 @@ bool NRMacUe::bufferizePacket(cPacket *pkt) {
 
 			//simplified Flow Control
 			if (getSimulation()->getSystemModule()->par("useSimplifiedFlowControl").boolValue()) {
-				if (macBuffers_[cid]->getQueueOccupancy() > (queueSize_ / 4)) {
+				if (macBuffers_[cid]->getQueueOccupancy() > (unsigned int)(queueSize_ / 4)) {
 					getNRBinder()->setQueueStatus(MacCidToNodeId(cid), lteInfo->getDirection(), lteInfo->getApplication(), true);
 				} else {
 					getNRBinder()->setQueueStatus(MacCidToNodeId(cid), lteInfo->getDirection(), lteInfo->getApplication(), false);
@@ -1016,7 +1015,7 @@ bool NRMacUe::bufferizePacket(cPacket *pkt) {
 
 		//simplified Flow Control --> to ensure the packet flow continues
 		if (getSimulation()->getSystemModule()->par("useSimplifiedFlowControl").boolValue()) {
-			if (macBuffers_[cid]->getQueueOccupancy() > (queueSize_ / 4)) {
+			if (macBuffers_[cid]->getQueueOccupancy() > (unsigned int)(queueSize_ / 4)) {
 				getNRBinder()->setQueueStatus(MacCidToNodeId(cid), lteInfo->getDirection(), lteInfo->getApplication(), true);
 			} else {
 				getNRBinder()->setQueueStatus(MacCidToNodeId(cid), lteInfo->getDirection(), lteInfo->getApplication(), false);

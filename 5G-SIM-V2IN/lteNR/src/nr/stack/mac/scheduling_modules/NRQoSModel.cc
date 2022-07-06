@@ -81,7 +81,6 @@ void NRQoSModel::prepareSchedule() //
 
 	//find out which cid has highest priority via qosHandler
 	std::map<double, std::vector<QosInfo>> sortedCids = mac_->getQosHandler()->getEqualPriorityMap(dir);
-	std::map<double, std::vector<QosInfo>>::reverse_iterator sortedCidsIter = sortedCids.rbegin();
 
 	//create a map with cids which are in the racStatusMap
 	std::map<double, std::vector<QosInfo>> activeCids;

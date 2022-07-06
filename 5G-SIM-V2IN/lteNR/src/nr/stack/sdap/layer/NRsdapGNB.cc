@@ -91,8 +91,6 @@ void NRsdapGNB::fromUpperToLower(cMessage *msg) {
 	}
 
     //nodeid is nodeB-Id, destid is ue
-    NRSdapEntity* entity = getEntity(nodeId_, destId, (ApplicationType)(lteInfo->getApplication()));
-
     lteInfo->setDestId(destId);
     lteInfo->setSourceId(nodeId_);
     lteInfo->setHeaderSize(1);
