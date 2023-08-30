@@ -116,8 +116,8 @@ void GtpUserNR::handleFromTrafficFlowFilter(IPv4Datagram * datagram) {
 		} else {
 			// get the symbolic IP address of the tunnel destination ID
 			// then obtain the address via IPvXAddressResolver
-			const char* symbolicName = binder_->getModuleNameByMacNodeId(flowId);
-			tunnelPeerAddress = L3AddressResolver().resolve(symbolicName);
+			std::string symbolicName = std::string(binder_->getModuleNameByMacNodeId(flowId)) + "%routerId";
+			tunnelPeerAddress = L3AddressResolver().resolve(symbolicName.c_str());
 		}
 		socket_.sendTo(gtpMsg, tunnelPeerAddress, tunnelPeerPort_);
 	}
@@ -148,8 +148,8 @@ void GtpUserNR::handleFromUdp(GtpUserMsg * gtpMsg) {
 			gtpMsg->encapsulate(datagram);
 
 			MacNodeId destMaster = binder_->getNextHop(destId);
-			const char* symbolicName = binder_->getModuleNameByMacNodeId(destMaster);
-			L3Address tunnelPeerAddress = L3AddressResolver().resolve(symbolicName);
+			std::string symbolicName = std::string(binder_->getModuleNameByMacNodeId(destMaster)) + "%routerId";
+			L3Address tunnelPeerAddress = L3AddressResolver().resolve(symbolicName.c_str());
 			socket_.sendTo(gtpMsg, tunnelPeerAddress, tunnelPeerPort_);
 			//EV << "GtpUserSimplified::handleFromUdp - Destination is a MEC server. Sending GTP packet to " << symbolicName << endl;
 		} else {
