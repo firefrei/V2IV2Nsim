@@ -25,7 +25,6 @@
  */
 
 #include "nr/epc/TrafficFlowFilterNR.h"
-#include "epc/gtp/GtpUserMsg_m.h"
 
 Define_Module(TrafficFlowFilterNR);
 
@@ -101,23 +100,20 @@ void TrafficFlowFilterNR::handleMessage(cMessage *msg) {
 
 	// receive and read IP datagram
 	IPv4Datagram *datagram = check_and_cast<IPv4Datagram*>(msg);
-
-	// Check if received datagram is forwarded by other UPF to this UPF -> it contains a GtpUser message -> decapsulate actual user data packet
-	if (datagram->hasEncapsulatedPacket())
+	if (datagram->hasBitError())
 	{
-		cPacket *encPkt = datagram->decapsulate();
-		GtpUserMsg *gtpMsg = dynamic_cast<GtpUserMsg*>(encPkt);
-		if (gtpMsg)
-		{
-			delete datagram;
-			datagram = check_and_cast<IPv4Datagram*>(gtpMsg->decapsulate());
-			msg = datagram;
-			delete gtpMsg;
-		}
-		else
-		{
-			datagram->encapsulate(encPkt);
-		}
+		delete datagram;
+		return;
+	}
+
+	// Check if received datagram is forwarded by other UPF to this UPF -> it contains a context pointer -> decapsulate actual user data packet
+	if (datagram->getContextPointer())
+	{
+		IPv4ControlInfo *ueAddr = static_cast<IPv4ControlInfo*>(datagram->getContextPointer());
+		datagram->setContextPointer(nullptr);
+		datagram->setDestinationAddress(ueAddr->getDestinationAddress());
+		datagram->setSourceAddress(ueAddr->getSourceAddress());
+		delete ueAddr;
 	}
 
 	IPv4Address &destAddr = datagram->getDestAddress();
@@ -153,32 +149,27 @@ void TrafficFlowFilterNR::handleMessage(cMessage *msg) {
 			}
 		}
 
-		IPv4Datagram *fwdDatagram = datagram;
-		
 		// Encapsulate upf-to-upf forwarding in Gtp message to enable external routing
 		// create a new GtpUserSimplifiedMessage
 		if (!connectedUPF_.empty())
 		{
-			GtpUserMsg* gtpMsg = new GtpUserMsg("GtpUserMessage");
-			gtpMsg->encapsulate(datagram);
+			if (datagram->getContextPointer())
+				error("Datagram already has a context pointer set!");
 
-			IPv4Datagram *gtpDatagram = new IPv4Datagram("UPF2UPF-Fwd-Datagram");
-			gtpDatagram->setDestinationAddress(inet::L3AddressResolver().resolve(connectedUPF_.c_str()));
-        	gtpDatagram->setSourceAddress(inet::L3AddressResolver().addressOf(getParentModule()));
-			gtpDatagram->setTransportProtocol(IP_PROT_UDP);
-			gtpDatagram->setTimeToLive(32);
-	        gtpDatagram->setByteLength(IP_HEADER_BYTES);
-			gtpDatagram->encapsulate(gtpMsg);
-
-			fwdDatagram = gtpDatagram;
+			IPv4ControlInfo *ueAddr = new IPv4ControlInfo();
+			ueAddr->setDestinationAddress(datagram->getDestinationAddress());
+			ueAddr->setSourceAddress(datagram->getSourceAddress());
+			datagram->setDestinationAddress(inet::L3AddressResolver().resolve(connectedUPF_.c_str()));
+			datagram->setSourceAddress(inet::L3AddressResolver().addressOf(getParentModule()));
+			datagram->setContextPointer(ueAddr);
 		}
 
 		if (considerProcessingDelay) {
 			//add processing delay
-		    sendDelayed(fwdDatagram, uniform(0, fwdDatagram->getTotalLengthField()/10e5), outGate);
+		    sendDelayed(datagram, uniform(0, datagram->getTotalLengthField()/10e5), outGate);
 		}
 		else {
-		    send(fwdDatagram, outGate);
+		    send(datagram, outGate);
 		}
 		connectedUPF_ = "";
 
