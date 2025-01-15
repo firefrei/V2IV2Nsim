@@ -350,21 +350,32 @@ void NRPhyUe::deleteOldBuffers(MacNodeId masterId) {
 	//std::cout << "NRPhyUe deleteOldBuffers start at " << simTime().dbl() << std::endl;
 
 	OmnetId masterOmnetId = binder_->getOmnetId(masterId);
+	cModule* lteNicModule = getSimulation()->getModule(masterOmnetId)->getSubmodule("lteNic");
 
 	channelModel_->resetOnHandover(nodeId_, masterId);
 
-	LtePhyBase *masterPhy = check_and_cast<LtePhyBase *>(getSimulation()->getModule(masterOmnetId)->getSubmodule("lteNic")->getSubmodule("phy"));
-	masterPhy->getChannelModel()->resetOnHandover(nodeId_, masterId);
+	if (lteNicModule)
+	{
+		cModule* phyMod = lteNicModule->getSubmodule("phy");
+		if (phyMod)
+		{
+			LtePhyBase *masterPhy = check_and_cast<LtePhyBase *>(phyMod);
+			masterPhy->getChannelModel()->resetOnHandover(nodeId_, masterId);
+		}
 
-	/* Delete Mac Buffers */
-
-	// delete macBuffer[nodeId_] at old master
-	NRMacGnb *masterMac = check_and_cast<NRMacGnb *>(getSimulation()->getModule(masterOmnetId)->getSubmodule("lteNic")->getSubmodule("mac"));
-	masterMac->deleteQueues(nodeId_);
-	//qosHandler GNB
-	masterMac->deleteNodeFromQosHandler(nodeId_);
-	masterMac->deleteOnHandoverRtxSignalised(nodeId_);
-	masterMac->deleteFromRtxMap(nodeId_);
+		/* Delete Mac Buffers */
+		cModule* macMod = lteNicModule->getSubmodule("mac");
+		if (macMod)
+		{
+			// delete macBuffer[nodeId_] at old master
+			NRMacGnb *masterMac = check_and_cast<NRMacGnb *>(macMod);
+			masterMac->deleteQueues(nodeId_);
+			//qosHandler GNB
+			masterMac->deleteNodeFromQosHandler(nodeId_);
+			masterMac->deleteOnHandoverRtxSignalised(nodeId_);
+			masterMac->deleteFromRtxMap(nodeId_);
+		}
+	}
 
 	// delete queues for master at this ue
 	mac_->deleteQueues(masterId_);
@@ -379,34 +390,64 @@ void NRPhyUe::deleteOldBuffers(MacNodeId masterId) {
 
 	/////////////////////////////////////////////////////////////////////////////////
 
-	/* Delete Rlc UM Buffers */
-	LteRlcUm * masterRlcUmRealistic = check_and_cast<LteRlcUm *>(getSimulation()->getModule(masterOmnetId)->getSubmodule("lteNic")->getSubmodule("rlc")->getSubmodule("um"));
-	masterRlcUmRealistic->deleteQueues(nodeId_);
+	if (lteNicModule)
+	{
+		/* Delete Rlc UM Buffers */
+		cModule* rlcMod = lteNicModule->getSubmodule("rlc");
+		if (rlcMod)
+		{
+			cModule* umMod = rlcMod->getSubmodule("um");
+			if (umMod)
+			{
+				LteRlcUm * masterRlcUmRealistic = check_and_cast<LteRlcUm *>(umMod);
+				masterRlcUmRealistic->deleteQueues(nodeId_);
+			}
+		}
+	}
 
 	// delete queues for master at this ue
 	rlcUm_->deleteQueues(nodeId_);
 
 	////////////////////////////////////////////////////////////////////////////////
 
-	//pdcp_rrc --> connectionTable reset, masterId == oldENB --> delete entry
-	// nodeId_ --> delete whole
-	NRPdcpRrcGnb *masterPdcp = check_and_cast<NRPdcpRrcGnb *>(getSimulation()->getModule(masterOmnetId)->getSubmodule("lteNic")->getSubmodule("pdcpRrc"));
-	masterPdcp->resetConnectionTable(masterId, nodeId_);
+	if (lteNicModule)
+	{
+		//pdcp_rrc --> connectionTable reset, masterId == oldENB --> delete entry
+		// nodeId_ --> delete whole
+		cModule* pdcpRrcMod = lteNicModule->getSubmodule("pdcpRrc");
+		if (pdcpRrcMod)
+		{
+			NRPdcpRrcGnb* masterPdcp = check_and_cast<NRPdcpRrcGnb *>(pdcpRrcMod);
+			masterPdcp->resetConnectionTable(masterId, nodeId_);
+		}
+	}
 
-	NRPdcpRrcUe * pdcp = check_and_cast<NRPdcpRrcUe *>(getParentModule()-> // nic
-	getSubmodule("pdcpRrc"));
-	pdcp->resetConnectionTable(masterId, nodeId_);
+	cModule* parentPdcpRrcMod = getParentModule()-> // nic
+	getSubmodule("pdcpRrc");
+	if (parentPdcpRrcMod)
+	{
+		NRPdcpRrcUe * pdcp = check_and_cast<NRPdcpRrcUe *>(parentPdcpRrcMod);
+		pdcp->resetConnectionTable(masterId, nodeId_);
+	}
 
 	//SDAP///////////////////////////////////////////////////////////////////////////
-	NRsdapUE * sdapUe = check_and_cast<NRsdapUE *>(getParentModule()-> // nic
-	getSubmodule("sdap"));
+	cModule* parentSdapUeMod = getParentModule()-> // nic
+	getSubmodule("sdap");
+	if (parentSdapUeMod)
+	{
+		NRsdapUE * sdapUe = check_and_cast<NRsdapUE *>(parentSdapUeMod);
+		sdapUe->deleteEntities(masterId);
+	}
 
-	sdapUe->deleteEntities(masterId);
-
-	NRsdapGNB *sdapGNB = check_and_cast<NRsdapGNB *>(getSimulation()->getModule(masterOmnetId)->getSubmodule("lteNic")->getSubmodule("sdap"));
-
-	sdapGNB->deleteEntities(nodeId_);
-
+	if (lteNicModule)
+	{
+		cModule* sdapMod = lteNicModule->getSubmodule("sdap");
+		if (sdapMod)
+		{
+			NRsdapGNB *sdapGNB = check_and_cast<NRsdapGNB *>(sdapMod);
+			sdapGNB->deleteEntities(nodeId_);
+		}
+	}
 	//std::cout << "NRPhyUe deleteOldBuffers end at " << simTime().dbl() << std::endl;
 }
 
